@@ -1,0 +1,13 @@
+#+TITLE:     session-quit
+#+AUTHOR:    ThwyIgo
+#+LANGUAGE:  en
+
+* Build
+- Install [[https://nixos.org/download.html][Nix]]
+- ~nix-build~
+- The executable is at ./result/bin/session-quit
+
+* Develop
+- Install [[https://nixos.org/download.html][Nix]]
+- ~nix-shell~
+- Start tinkering!
