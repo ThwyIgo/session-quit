@@ -7,6 +7,9 @@ import Data.GI.Base
 import Data.Text (Text)
 import qualified Data.Text.IO as T
 
+import Foreign.Ptr
+
+-- Get an Object and cast it to a Type
 getBuilderObj :: GObject o'
               =>  Gtk.Builder 
               -> Text                  -- Object's Id
@@ -17,3 +20,10 @@ getBuilderObj builder name gtkConstr = #getObject builder name >>= \case
   Nothing -> do
     T.putStrLn $ "Object named '" <> name <> "' could not be found."
     return Nothing
+
+connectCallbackSymbols :: Gtk.Builder
+                       -> [(Text, IO ())] -- [(SignalName, CallbackFunction)]
+                       -> IO ()
+connectCallbackSymbols builder signalsList = do
+  mapM_ (uncurry $ #addCallbackSymbol builder) signalsList
+  #connectSignals builder nullPtr

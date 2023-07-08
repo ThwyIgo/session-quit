@@ -29,9 +29,25 @@ main = do
   
 activate :: Gtk.Application -> G.ApplicationActivateCallback
 activate app = do
-  builder <- Gtk.builderNewFromFile . pack =<< Paths.getDataFileName "resources/appWindow.glade"
+  builder <- Gtk.builderNewFromFile . pack =<< Paths.getDataFileName "resources/appWindow.ui"
+  connectCallbackSymbols builder signals
 
   Just win <- getBuilderObj builder "appWindow" Gtk.ApplicationWindow
   win `set` [ Gtk.windowApplication := app ]
 
   #showAll win
+
+-- Signals
+
+signals :: [(Text, IO ())]
+signals = [ ("on_buttonCustom_clicked", onButtonCustomClicked)
+          , ("on_buttonLock_clicked", undefined)
+          , ("on_buttonLogout_clicked", undefined)
+          , ("on_buttonPoweroff_clicked", undefined)
+          , ("on_buttonHibernate_clicked", undefined)
+          , ("on_buttonSuspend_clicked", undefined)
+          , ("on_buttonRestart_clicked", undefined)
+          ]
+
+onButtonCustomClicked :: IO ()
+onButtonCustomClicked = putStrLn "Custom button clicked!"
