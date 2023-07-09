@@ -76,6 +76,7 @@ executable session-quit
                     , haskell-gi-base
                     , gi-gio
                     , text
+                    , typed-process
 
     -- Directories containing source files.
     hs-source-dirs:   app

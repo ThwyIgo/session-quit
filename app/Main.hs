@@ -6,10 +6,10 @@ import Data.GI.Base
 import qualified GI.Gio as G
 
 import Data.Text (Text, pack)
-import qualified Data.Text.IO as T
 
 import Control.Applicative
 import Control.Monad
+import System.Process.Typed
 import System.Environment
 import System.Exit
 
@@ -34,6 +34,11 @@ activate app = do
 
   Just win <- getBuilderObj builder "appWindow" Gtk.ApplicationWindow
   win `set` [ Gtk.windowApplication := app ]
+  Just winName <- #getTitle win
+  
+  Just titleBar <- getBuilderObj builder "headerTitleBar" Gtk.HeaderBar
+  titleBar `set` [ Gtk.headerBarTitle := winName ]
+  Gtk.windowSetTitlebar win (Just titleBar)
 
   #showAll win
 
@@ -41,13 +46,44 @@ activate app = do
 
 signals :: [(Text, IO ())]
 signals = [ ("on_buttonCustom_clicked", onButtonCustomClicked)
-          , ("on_buttonLock_clicked", undefined)
-          , ("on_buttonLogout_clicked", undefined)
-          , ("on_buttonPoweroff_clicked", undefined)
-          , ("on_buttonHibernate_clicked", undefined)
-          , ("on_buttonSuspend_clicked", undefined)
-          , ("on_buttonRestart_clicked", undefined)
+          , ("on_buttonLock_clicked", onButtonLockClicked)
+          , ("on_buttonLogout_clicked", onButtonLogoutClicked)
+          , ("on_buttonPoweroff_clicked", onButtonPoweroffClicked)
+          , ("on_buttonHibernate_clicked", onButtonHibernateClicked)
+          , ("on_buttonSuspend_clicked", onButtonSuspendClicked)
+          , ("on_buttonRestart_clicked", onButtonRestartClicked)
           ]
-
+          
 onButtonCustomClicked :: IO ()
 onButtonCustomClicked = putStrLn "Custom button clicked!"
+
+onButtonLockClicked :: IO ()
+onButtonLockClicked = runProcess_ "slock" >> exitSuccess
+
+onButtonLogoutClicked :: IO ()
+onButtonLogoutClicked = runProcess_ . shell $
+  {- Kills a process with the same name as the window manager.
+     This doesn't always work; Cinnamon, for example, will output "Mutter",
+     which doesn't match the process name. -}
+  unwords [ "pkill -f \"$("
+          , "xprop -id"
+          , "$(xprop -root -notype"
+          , "| awk '$1==\"_NET_SUPPORTING_WM_CHECK:\"{print $5}')"
+          , " -notype -f _NET_WM_NAME 8t"
+          , "| grep '_NET_WM_NAME = '"
+          , "| cut --delimiter=' ' --fields 3"
+          , "| cut --delimiter='\"' --fields 2"
+          , ")\""
+          ]
+
+onButtonPoweroffClicked :: IO ()
+onButtonPoweroffClicked = runProcess_ "shutdown now"
+
+onButtonHibernateClicked :: IO ()
+onButtonHibernateClicked = runProcess_ "systemctl hibernate" >> exitSuccess
+
+onButtonSuspendClicked :: IO ()
+onButtonSuspendClicked = runProcess_ "systemctl suspend" >> exitSuccess
+
+onButtonRestartClicked :: IO ()
+onButtonRestartClicked = runProcess_ "reboot"
