@@ -11,3 +11,7 @@
 - Install [[https://nixos.org/download.html][Nix]]
 - ~nix-shell~
 - Start tinkering!
+
+* Install
+- Install [[https://nixos.org/download.html][Nix]]
+- ~nix-env -if default.nix~

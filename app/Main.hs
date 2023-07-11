@@ -6,15 +6,19 @@ import Data.GI.Base
 import qualified GI.Gio as G
 
 import Data.Text (Text, pack)
+import System.Process.Typed
 
 import Control.Applicative
 import Control.Monad
-import System.Process.Typed
+import Data.Maybe
 import System.Environment
 import System.Exit
 
 import qualified Paths_session_quit as Paths
 import Local
+
+applicationName :: Text
+applicationName = "Session quit"
 
 main :: IO ()
 main = do
@@ -26,7 +30,7 @@ main = do
 
   when (status /= 0) $
     exitWith $ ExitFailure (fromIntegral status)
-  
+
 activate :: Gtk.Application -> G.ApplicationActivateCallback
 activate app = do
   builder <- Gtk.builderNewFromFile . pack =<< Paths.getDataFileName "resources/appWindow.ui"
@@ -34,11 +38,11 @@ activate app = do
 
   Just win <- getBuilderObj builder "appWindow" Gtk.ApplicationWindow
   win `set` [ Gtk.windowApplication := app ]
-  Just winName <- #getTitle win
+  winName <- fromMaybe applicationName <$> #getTitle win
   
-  Just titleBar <- getBuilderObj builder "headerTitleBar" Gtk.HeaderBar
-  titleBar `set` [ Gtk.headerBarTitle := winName ]
-  Gtk.windowSetTitlebar win (Just titleBar)
+  titleBar <- getBuilderObj builder "headerTitleBar" Gtk.HeaderBar
+  maybe (return ()) (`set` [ Gtk.headerBarTitle := winName ]) titleBar 
+  Gtk.windowSetTitlebar win titleBar
 
   #showAll win
 

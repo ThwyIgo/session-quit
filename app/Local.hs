@@ -7,6 +7,7 @@ import Data.GI.Base
 import Data.Text (Text)
 import qualified Data.Text.IO as T
 
+import System.IO
 import Foreign.Ptr
 
 -- Get an Object and cast it to a Type
@@ -18,7 +19,7 @@ getBuilderObj :: GObject o'
 getBuilderObj builder name gtkConstr = #getObject builder name >>= \case 
   Just obj -> castTo gtkConstr obj
   Nothing -> do
-    T.putStrLn $ "Object named '" <> name <> "' could not be found."
+    T.hPutStr stderr $ "Object named '" <> name <> "' could not be found."
     return Nothing
 
 connectCallbackSymbols :: Gtk.Builder
