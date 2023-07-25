@@ -84,10 +84,16 @@ onButtonPoweroffClicked :: IO ()
 onButtonPoweroffClicked = runProcess_ "shutdown now"
 
 onButtonHibernateClicked :: IO ()
-onButtonHibernateClicked = runProcess_ "systemctl hibernate" >> exitSuccess
+onButtonHibernateClicked = do
+  runProcess_ "systemctl hibernate"
+  onButtonLockClicked
+  exitSuccess
 
 onButtonSuspendClicked :: IO ()
-onButtonSuspendClicked = runProcess_ "systemctl suspend" >> exitSuccess
+onButtonSuspendClicked = do
+  runProcess_ "systemctl suspend"
+  onButtonLockClicked
+  exitSuccess
 
 onButtonRestartClicked :: IO ()
 onButtonRestartClicked = runProcess_ "reboot"
