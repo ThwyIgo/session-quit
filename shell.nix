@@ -1,8 +1,10 @@
 { pkgs ? import <nixpkgs> {} }:
 
-(pkgs.callPackage ./default.nix { }).session-quit.env.overrideAttrs (finalAttrs: previousAttrs: {
-  buildInputs = previousAttrs.buildInputs ++ (with pkgs; [
-    cabal-install
+pkgs.mkShell {
+  inputsFrom = [ (pkgs.callPackage ./default.nix {}).session-quit.env ];
+
+  packages = with pkgs; [
     cabal2nix
-  ]);
-})
+    cabal-install
+  ];
+}

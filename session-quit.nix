@@ -9,6 +9,7 @@ mkDerivation {
   executableHaskellDepends = [
     base gi-gio gi-gtk haskell-gi-base text
   ];
+
   description = "GUI to quit X sessions";
   license = lib.licenses.gpl3Plus;
   mainProgram = "session-quit";
