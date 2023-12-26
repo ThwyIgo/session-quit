@@ -12,11 +12,11 @@ import Foreign.Ptr
 
 -- Get an Object and cast it to a Type
 getBuilderObj :: GObject o'
-              =>  Gtk.Builder 
+              => Gtk.Builder
               -> Text                  -- Object's Id
               -> (ManagedPtr o' -> o') -- Object's Type
               -> IO (Maybe o')
-getBuilderObj builder name gtkConstr = #getObject builder name >>= \case 
+getBuilderObj builder name gtkConstr = Gtk.builderGetObject builder name >>= \case
   Just obj -> castTo gtkConstr obj
   Nothing -> do
     T.hPutStr stderr $ "Object named '" <> name <> "' could not be found."

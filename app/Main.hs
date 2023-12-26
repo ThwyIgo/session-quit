@@ -62,7 +62,9 @@ onButtonCustomClicked :: IO ()
 onButtonCustomClicked = putStrLn "Custom button clicked!"
 
 onButtonLockClicked :: IO ()
-onButtonLockClicked = runProcess_ "slock" >> exitSuccess
+onButtonLockClicked = do
+  runProcess_ "xset dpms force off; xautolock -locknow"
+  exitSuccess
 
 onButtonLogoutClicked :: IO ()
 onButtonLogoutClicked = runProcess_ . shell $
