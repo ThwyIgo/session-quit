@@ -75,8 +75,12 @@ executable session-quit
                     , gi-gtk == 3.0.*
                     , haskell-gi-base
                     , gi-gio
+                    , containers
+                    , directory
+                    , transformers
                     , text
                     , typed-process
+                    , xdg-basedir-compliant
 
     -- Directories containing source files.
     hs-source-dirs:   app

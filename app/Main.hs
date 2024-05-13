@@ -13,12 +13,17 @@ import Control.Monad
 import Data.Maybe
 import System.Environment
 import System.Exit
+import System.XDG
 
 import qualified Paths_session_quit as Paths
 import Local
 
 applicationName :: Text
 applicationName = "Session quit"
+
+configDir, configFile :: IO FilePath
+configDir = (++ "session-quit/") <$> getConfigHome
+configFile = (++ "session-quit.cfg") <$> configDir
 
 main :: IO ()
 main = do
@@ -63,7 +68,8 @@ onButtonCustomClicked = putStrLn "Custom button clicked!"
 
 onButtonLockClicked :: IO ()
 onButtonLockClicked = do
-  runProcess_ "xset dpms force off; xautolock -locknow"
+  runProcess_ "xset dpms force off"
+  lock
   exitSuccess
 
 onButtonLogoutClicked :: IO ()
@@ -88,14 +94,19 @@ onButtonPoweroffClicked = runProcess_ "shutdown now"
 onButtonHibernateClicked :: IO ()
 onButtonHibernateClicked = do
   runProcess_ "systemctl hibernate"
-  onButtonLockClicked
+  lock
   exitSuccess
 
 onButtonSuspendClicked :: IO ()
 onButtonSuspendClicked = do
   runProcess_ "systemctl suspend"
-  onButtonLockClicked
+  lock
   exitSuccess
 
 onButtonRestartClicked :: IO ()
 onButtonRestartClicked = runProcess_ "reboot"
+
+----
+
+lock :: IO ()
+lock = runProcess_ "xautolock -locknow"
