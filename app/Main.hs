@@ -10,6 +10,7 @@ import System.Process.Typed
 
 import Control.Applicative
 import Control.Monad
+import qualified Data.Map as Map
 import Data.Maybe
 import System.Environment
 import System.Exit
@@ -39,74 +40,30 @@ main = do
 activate :: Gtk.Application -> G.ApplicationActivateCallback
 activate app = do
   builder <- Gtk.builderNewFromFile . pack =<< Paths.getDataFileName "resources/appWindow.ui"
-  connectCallbackSymbols builder signals
+  config <- loadConfig =<< configFile
+  connectCallbackSymbols builder (signals config)
 
   Just win <- getBuilderObj builder "appWindow" Gtk.ApplicationWindow
   win `set` [ Gtk.windowApplication := app ]
   winName <- fromMaybe applicationName <$> #getTitle win
-  
+
   titleBar <- getBuilderObj builder "headerTitleBar" Gtk.HeaderBar
-  maybe (return ()) (`set` [ Gtk.headerBarTitle := winName ]) titleBar 
+  maybe (return ()) (`set` [ Gtk.headerBarTitle := winName ]) titleBar
   Gtk.windowSetTitlebar win titleBar
 
   #showAll win
 
 -- Signals
 
-signals :: [(Text, IO ())]
-signals = [ ("on_buttonCustom_clicked", onButtonCustomClicked)
-          , ("on_buttonLock_clicked", onButtonLockClicked)
-          , ("on_buttonLogout_clicked", onButtonLogoutClicked)
-          , ("on_buttonPoweroff_clicked", onButtonPoweroffClicked)
-          , ("on_buttonHibernate_clicked", onButtonHibernateClicked)
-          , ("on_buttonSuspend_clicked", onButtonSuspendClicked)
-          , ("on_buttonRestart_clicked", onButtonRestartClicked)
-          ]
-          
-onButtonCustomClicked :: IO ()
-onButtonCustomClicked = putStrLn "Custom button clicked!"
-
-onButtonLockClicked :: IO ()
-onButtonLockClicked = do
-  runProcess_ "xset dpms force off"
-  lock
-  exitSuccess
-
-onButtonLogoutClicked :: IO ()
-onButtonLogoutClicked = runProcess_ . shell $
-  {- Kills a process with the same name as the window manager.
-     This doesn't always work; Cinnamon, for example, will output "Mutter",
-     which doesn't match the process name. -}
-  unwords [ "pkill -f \"$("
-          , "xprop -id"
-          , "$(xprop -root -notype"
-          , "| awk '$1==\"_NET_SUPPORTING_WM_CHECK:\"{print $5}')"
-          , " -notype -f _NET_WM_NAME 8t"
-          , "| grep '_NET_WM_NAME = '"
-          , "| cut --delimiter=' ' --fields 3"
-          , "| cut --delimiter='\"' --fields 2"
-          , ")\""
-          ]
-
-onButtonPoweroffClicked :: IO ()
-onButtonPoweroffClicked = runProcess_ "shutdown now"
-
-onButtonHibernateClicked :: IO ()
-onButtonHibernateClicked = do
-  runProcess_ "systemctl hibernate"
-  lock
-  exitSuccess
-
-onButtonSuspendClicked :: IO ()
-onButtonSuspendClicked = do
-  runProcess_ "systemctl suspend"
-  lock
-  exitSuccess
-
-onButtonRestartClicked :: IO ()
-onButtonRestartClicked = runProcess_ "reboot"
-
-----
-
-lock :: IO ()
-lock = runProcess_ "xautolock -locknow"
+signals :: Map.Map String String ->  [(Text, IO ())]
+signals config =
+  [ ("on_buttonCustom_clicked"   , runScript "Custom")
+  , ("on_buttonLock_clicked"     , mapM_ runScript ["NoBacklight", "Lock"])
+  , ("on_buttonLogout_clicked"   , runScript "Logout")
+  , ("on_buttonPoweroff_clicked" , runScript "Shutdown")
+  , ("on_buttonHibernate_clicked", mapM_ runScript ["Hibernate", "Lock"])
+  , ("on_buttonSuspend_clicked"  , mapM_ runScript ["Suspend", "Lock"])
+  , ("on_buttonRestart_clicked"  , runScript "Restart")
+  ]
+  where
+  runScript script = runProcess_ . shell $ config Map.! script

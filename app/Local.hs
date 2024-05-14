@@ -8,11 +8,11 @@ import Data.Text (Text)
 import qualified Data.Text.IO as T
 
 import Control.Monad
-import Control.Monad.Trans.Maybe
 import qualified Data.Map as Map
 import Data.Char
 import System.Directory
 import System.IO
+import System.FilePath
 import Foreign.Ptr
 
 import qualified Paths_session_quit as Paths
@@ -38,14 +38,18 @@ connectCallbackSymbols builder signalsList = do
 
 {- Gets the configuration from configPath. Create the default configuration if
    configPath doesn't exist -}
-loadConfig :: FilePath -> MaybeT IO (Map.Map String String)
+loadConfig :: FilePath -> IO (Map.Map String String)
 loadConfig configPath =
   let defaultConfig = readFile =<< Paths.getDataFileName "resources/defaultConfig.cfg"
-      createConfig = doesFileExist configPath >>= \b -> unless b $
-        writeFile configPath =<< defaultConfig
-        
-      config = createConfig >> readFile configPath
-  in MaybeT $ parseConfig <$> config
+  in do
+    createDirectoryIfMissing True $ takeDirectory configPath
+    doesFileExist configPath >>= flip unless
+      (writeFile configPath =<< defaultConfig)
+
+    config <- readFile configPath
+    case parseConfig config of
+      Just c -> return c
+      Nothing -> ioError $ userError "Error parsing config file"
 
 parseConfig :: String -> Maybe (Map.Map String String)
 parseConfig config =
@@ -60,7 +64,8 @@ parseConfig config =
      else Nothing
 
 buttonNames :: [String]
-buttonNames = [ "Custom"
+buttonNames = [ "NoBacklight"
+              , "Custom"
               , "Lock"
               , "Logout"
               , "Shutdown"

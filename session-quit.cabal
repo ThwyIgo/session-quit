@@ -77,7 +77,7 @@ executable session-quit
                     , gi-gio
                     , containers
                     , directory
-                    , transformers
+                    , filepath
                     , text
                     , typed-process
                     , xdg-basedir-compliant
