@@ -51,6 +51,7 @@ extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
 data-files:         resources/*.ui
+                  , resources/*.cfg
 
 common warnings
     ghc-options: -Wall
