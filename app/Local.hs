@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLabels, OverloadedStrings, LambdaCase, ViewPatterns #-}
-module Local where
+module Local (getBuilderObj, connectCallbackSymbols, loadConfig, buttonNames) where
 
 import qualified GI.Gtk as Gtk
 import Data.GI.Base
@@ -48,20 +48,32 @@ loadConfig configPath =
 
     config <- readFile configPath
     case parseConfig config of
-      Just c -> return c
-      Nothing -> ioError $ userError "Error parsing config file"
+      Right c -> return c
+      Left errors -> ioError . userError . unlines $
+        map (\(i, msg) -> "Error in line " ++ show i ++ ": " ++ msg) errors
 
-parseConfig :: String -> Maybe (Map.Map String String)
+data ParseResult = Parsed (String, String) | Error (Int, String)
+isParsed :: ParseResult -> Bool
+isParsed (Parsed _) = True
+isParsed _ = False
+
+parseConfig :: String -> Either [(Int, String)] (Map.Map String String)
 parseConfig config =
   let parsed = do
-        line <- lines config
+        line <- zip [1..] $ lines config
         case line of
-          (all isSpace -> True) -> []
-          ('#':_) -> []
-          l -> return $ drop 1 <$> break (== '=') l
-  in if all ((`elem` buttonNames) . fst) parsed
-     then Just $ Map.fromList parsed
-     else Nothing
+          (_, all isSpace -> True) -> []
+          (_, '#':_) -> []
+          (i, elem '=' -> False) -> [Error (i, "Non empty line doesn't contain '='")]
+          (i, l) -> case drop 1 <$> break (== '=') l of
+            (key@((`elem` buttonNames) -> False), _) ->
+              [Error (i, '\"' : key ++ "\" " ++ "isn't a valid key")]
+            (_, all isSpace -> True) -> [Error (i, "Empty value")]
+            kv -> [Parsed kv]
+      failed = filter (not . isParsed) parsed
+  in case failed of
+    [] -> Right . Map.fromList $ map (\(Parsed x) -> x) parsed
+    a -> Left $ map (\(Error x) -> x) a
 
 buttonNames :: [String]
 buttonNames = [ "NoBacklight"
