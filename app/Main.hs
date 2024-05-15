@@ -4,11 +4,13 @@ module Main where
 import qualified GI.Gtk as Gtk
 import Data.GI.Base
 import qualified GI.Gio as G
+import qualified GI.Gdk as Gdk
 
 import Data.Text (Text, pack)
 import System.Process.Typed
 
 import Control.Applicative
+import Control.Exception
 import Control.Monad
 import qualified Data.Map as Map
 import Data.Maybe
@@ -40,7 +42,7 @@ main = do
 activate :: Gtk.Application -> G.ApplicationActivateCallback
 activate app = do
   builder <- Gtk.builderNewFromFile . pack =<< Paths.getDataFileName "resources/appWindow.ui"
-  config <- loadConfig =<< configFile
+  config <- (loadConfig =<< configFile) `catch` warnConfig
   connectCallbackSymbols builder (signals config)
 
   Just win <- getBuilderObj builder "appWindow" Gtk.ApplicationWindow
@@ -52,6 +54,24 @@ activate app = do
   Gtk.windowSetTitlebar win titleBar
 
   #showAll win
+  where
+    warnConfig :: ConfigError -> IO (Map.Map a b)
+    warnConfig e = do
+      txtBuffer <- new Gtk.TextBuffer [ #text := pack $ show e ]
+      txtView <- new Gtk.TextView [ #buffer        := txtBuffer
+                                  , #editable      := False
+                                  , #cursorVisible := False
+                                  ]
+      win <- new Gtk.Window [ #application := app
+                            , #title       := "Error"
+                            , #typeHint    := Gdk.WindowTypeHintDialog
+                            , #resizable   := False
+                            , #child       := txtView
+                            , On #destroy $ throwIO e
+                            ]
+
+      #showAll win
+      return Map.empty
 
 -- Signals
 

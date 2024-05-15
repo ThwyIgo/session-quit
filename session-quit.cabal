@@ -74,6 +74,7 @@ executable session-quit
     -- Other library packages from which modules are imported.
     build-depends:    base
                     , gi-gtk == 3.0.*
+                    , gi-gdk
                     , haskell-gi-base
                     , gi-gio
                     , containers
