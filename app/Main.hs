@@ -56,7 +56,7 @@ activate app = do
 -- Signals
 
 signals :: Map.Map String String ->  [(Text, IO ())]
-signals config =
+signals config = fmap (>> exitSuccess) <$>
   [ ("on_buttonCustom_clicked"   , runScript "Custom")
   , ("on_buttonLock_clicked"     , mapM_ runScript ["NoBacklight", "Lock"])
   , ("on_buttonLogout_clicked"   , runScript "Logout")
@@ -66,4 +66,6 @@ signals config =
   , ("on_buttonRestart_clicked"  , runScript "Restart")
   ]
   where
-  runScript script = runProcess_ . shell $ config Map.! script
+  runScript script = runProcess_ . shell =<< case config Map.!? script of
+    Just s -> return s
+    Nothing -> (Map.! script) <$> loadConfig "resources/defaultConfig.cfg"

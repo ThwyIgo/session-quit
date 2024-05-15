@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
 
 pkgs.mkShell {
-  inputsFrom = [ (pkgs.callPackage ./default.nix {}).session-quit.env ];
+  inputsFrom = [ (pkgs.callPackage ./default.nix {}).env ];
 
   packages = with pkgs; [
     cabal2nix

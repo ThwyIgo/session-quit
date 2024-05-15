@@ -9,6 +9,7 @@ import qualified Data.Text.IO as T
 
 import Control.Monad
 import qualified Data.Map as Map
+import Data.Either
 import Data.Char
 import System.Directory
 import System.IO
@@ -52,11 +53,6 @@ loadConfig configPath =
       Left errors -> ioError . userError . unlines $
         map (\(i, msg) -> "Error in line " ++ show i ++ ": " ++ msg) errors
 
-data ParseResult = Parsed (String, String) | Error (Int, String)
-isParsed :: ParseResult -> Bool
-isParsed (Parsed _) = True
-isParsed _ = False
-
 parseConfig :: String -> Either [(Int, String)] (Map.Map String String)
 parseConfig config =
   let parsed = do
@@ -64,16 +60,17 @@ parseConfig config =
         case line of
           (_, all isSpace -> True) -> []
           (_, '#':_) -> []
-          (i, elem '=' -> False) -> [Error (i, "Non empty line doesn't contain '='")]
+          (i, elem '=' -> False) -> [Left (i, "Non empty line doesn't contain '='")]
+
           (i, l) -> case drop 1 <$> break (== '=') l of
             (key@((`elem` buttonNames) -> False), _) ->
-              [Error (i, '\"' : key ++ "\" " ++ "isn't a valid key")]
-            (_, all isSpace -> True) -> [Error (i, "Empty value")]
-            kv -> [Parsed kv]
-      failed = filter (not . isParsed) parsed
-  in case failed of
-    [] -> Right . Map.fromList $ map (\(Parsed x) -> x) parsed
-    a -> Left $ map (\(Error x) -> x) a
+              [Left (i, '\"' : key ++ "\" " ++ "isn't a valid key")]
+            (_, all isSpace -> True) -> [Left (i, "Empty value")]
+            kv -> [Right kv]
+
+  in case sequenceA parsed of
+    Right a -> Right $ Map.fromList a
+    Left _ -> Left $ lefts parsed
 
 buttonNames :: [String]
 buttonNames = [ "NoBacklight"
