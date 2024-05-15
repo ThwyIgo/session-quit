@@ -8,6 +8,7 @@ import qualified GI.Gdk as Gdk
 
 import Data.Text (Text, pack)
 import System.Process.Typed
+import System.XDG
 
 import Control.Applicative
 import Control.Exception
@@ -16,7 +17,6 @@ import qualified Data.Map as Map
 import Data.Maybe
 import System.Environment
 import System.Exit
-import System.XDG
 
 import qualified Paths_session_quit as Paths
 import Local
@@ -42,31 +42,34 @@ main = do
 activate :: Gtk.Application -> G.ApplicationActivateCallback
 activate app = do
   builder <- Gtk.builderNewFromFile . pack =<< Paths.getDataFileName "resources/appWindow.ui"
-  config <- (loadConfig =<< configFile) `catch` warnConfig
+  Just win <- getBuilderObj builder "appWindow" Gtk.ApplicationWindow
+  config <- (loadConfig =<< configFile) `catch` warnConfig win
   connectCallbackSymbols builder (signals config)
 
-  Just win <- getBuilderObj builder "appWindow" Gtk.ApplicationWindow
-  win `set` [ Gtk.windowApplication := app ]
+  win `set` [ #application := app ]
   winName <- fromMaybe applicationName <$> #getTitle win
 
   titleBar <- getBuilderObj builder "headerTitleBar" Gtk.HeaderBar
-  maybe (return ()) (`set` [ Gtk.headerBarTitle := winName ]) titleBar
-  Gtk.windowSetTitlebar win titleBar
+  mapM_ (`set` [ #title := winName ]) titleBar
+  #setTitlebar win titleBar
 
   #showAll win
   where
-    warnConfig :: ConfigError -> IO (Map.Map a b)
-    warnConfig e = do
-      txtBuffer <- new Gtk.TextBuffer [ #text := pack $ show e ]
-      txtView <- new Gtk.TextView [ #buffer        := txtBuffer
-                                  , #editable      := False
-                                  , #cursorVisible := False
-                                  ]
-      win <- new Gtk.Window [ #application := app
-                            , #title       := "Error"
-                            , #typeHint    := Gdk.WindowTypeHintDialog
-                            , #resizable   := False
-                            , #child       := txtView
+    warnConfig :: Gtk.ApplicationWindow -> ConfigError -> IO (Map.Map a b)
+    warnConfig pWin e = do
+      pWin `set` [ #sensitive := False ]
+      cfgPath <- configFile
+      txtBuffer <- new Gtk.TextBuffer [ #text := pack $ "Error loading " ++ cfgPath ++ '\n' : show e ]
+      txtView   <- new Gtk.TextView   [ #buffer        := txtBuffer
+                                      , #editable      := False
+                                      , #cursorVisible := False
+                                      ]
+      win <- new Gtk.Window [ #application  := app
+                            , #title        := "Error"
+                            , #typeHint     := Gdk.WindowTypeHintDialog
+                            , #resizable    := False
+                            , #transientFor := pWin
+                            , #child        := txtView
                             , On #destroy $ throwIO e
                             ]
 
