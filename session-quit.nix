@@ -1,6 +1,6 @@
-{ mkDerivation, base, containers, directory, filepath, gi-gio
-, gi-gtk, haskell-gi-base, lib, text, typed-process
-, xdg-basedir-compliant
+{ mkDerivation, base, containers, directory, filepath, gi-gdk
+, gi-gio, gi-gtk, haskell-gi-base, lib, text, typed-process
+, xdg-basedir
 }:
 mkDerivation {
   pname = "session-quit";
@@ -10,8 +10,8 @@ mkDerivation {
   isExecutable = true;
   enableSeparateDataOutput = true;
   executableHaskellDepends = [
-    base containers directory filepath gi-gio gi-gtk haskell-gi-base
-    text typed-process xdg-basedir-compliant
+    base containers directory filepath gi-gdk gi-gio gi-gtk
+    haskell-gi-base text typed-process xdg-basedir
   ];
   description = "GUI to quit X sessions";
   license = lib.licenses.gpl3Plus;

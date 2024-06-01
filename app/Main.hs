@@ -8,12 +8,12 @@ import qualified GI.Gdk as Gdk
 
 import Data.Text (Text, pack)
 import System.Process.Typed
-import System.XDG
+import System.Environment.XDG.BaseDir
 
-import Control.Applicative
 import Control.Exception
 import Control.Monad
 import qualified Data.Map as Map
+import Data.Functor
 import Data.Maybe
 import System.Environment
 import System.Exit
@@ -25,8 +25,8 @@ applicationName :: Text
 applicationName = "Session quit"
 
 configDir, configFile :: IO FilePath
-configDir = (++ "session-quit/") <$> getConfigHome
-configFile = (++ "session-quit.cfg") <$> configDir
+configDir = getUserConfigDir "session-quit/"
+configFile = configDir <&> (++ "session-quit.cfg")
 
 main :: IO ()
 main = do

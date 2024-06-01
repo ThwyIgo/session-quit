@@ -82,7 +82,7 @@ executable session-quit
                     , filepath
                     , text
                     , typed-process
-                    , xdg-basedir-compliant
+                    , xdg-basedir
 
     -- Directories containing source files.
     hs-source-dirs:   app
