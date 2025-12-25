@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLabels, OverloadedStrings, LambdaCase, ViewPatterns, RecordWildCards #-}
-module Local (getBuilderObj, connectCallbackSymbols, loadConfig, buttonNames, ConfigError(..)) where
+module Local (getBuilderObj, loadConfig, buttonNames, ConfigError(..)) where
 
 import qualified GI.Gtk as Gtk
 import Data.GI.Base
@@ -16,7 +16,6 @@ import Data.Foldable
 import System.Directory
 import System.IO
 import System.FilePath
-import Foreign.Ptr
 
 import qualified Paths_session_quit as Paths
 
@@ -31,13 +30,6 @@ getBuilderObj builder name gtkConstr = Gtk.builderGetObject builder name >>= \ca
   Nothing -> do
     T.hPutStr stderr $ "Object named '" <> name <> "' could not be found."
     return Nothing
-
-connectCallbackSymbols :: Gtk.Builder
-                       -> [(Text, IO ())] -- [(SignalName, CallbackFunction)]
-                       -> IO ()
-connectCallbackSymbols builder signalsList = do
-  mapM_ (uncurry $ #addCallbackSymbol builder) signalsList
-  #connectSignals builder nullPtr
 
 data ConfigError = LineError { line :: Int, message :: String }
                  | FileError { message :: String }

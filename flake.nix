@@ -1,8 +1,8 @@
 {
-  description = "A simple flake for a Haskell project";
+  description = "session-quit flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -10,23 +10,17 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        haskellPackages = pkgs.haskellPackages;
-
-        jailbreakUnbreak = pkg:
-          pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
-
+        haskellPackages = pkgs.haskellPackages.extend (pkgs.haskell.lib.compose.packageSourceOverrides {
+          session-quit = pkgs.lib.sources.cleanSource ./.;
+        });
       in {
-        packages.default = haskellPackages.callCabal2nix "session-quit" self { };
+        packages.default = haskellPackages.session-quit;
 
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            haskellPackages.cabal-install
-            haskellPackages.haskell-language-server
-            (haskellPackages.callCabal2nix "session-quit" self { })
-            # Add other dev dependencies here
-            pkg-config
-            gtk3
-            gobject-introspection
+        devShells.default = haskellPackages.shellFor {
+          packages = p: [ p.session-quit ];
+          nativeBuildInputs = with pkgs; [
+            cabal-install
+            haskell-language-server
           ];
         };
       });

@@ -1,133 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtk" version="4.0"/>
   <object class="GtkApplicationWindow" id="appWindow">
-    <property name="can-focus">False</property>
+    <property name="focusable">False</property>
     <property name="title" translatable="yes">Session actions</property>
     <property name="resizable">False</property>
-    <property name="window-position">center</property>
+    <property name="default-width">414</property>
+    <property name="default-height">116</property>
     <property name="icon-name">application-exit</property>
-    <property name="type-hint">dialog</property>
     <property name="show-menubar">False</property>
-    <child>
-      <!-- n-columns=4 n-rows=2 -->
+    <property name="child">
       <object class="GtkGrid" id="gridActions">
         <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="focusable">False</property>
         <child>
           <object class="GtkButton" id="buttonPoweroff">
             <property name="label" translatable="yes">Shutdown</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
             <property name="receives-default">True</property>
             <signal name="clicked" handler="on_buttonPoweroff_clicked" swapped="no"/>
+            <layout>
+              <property name="column">3</property>
+              <property name="row">0</property>
+              <property name="row-span">2</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left-attach">3</property>
-            <property name="top-attach">0</property>
-            <property name="height">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton" id="buttonSuspend">
             <property name="label" translatable="yes">Suspend</property>
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">True</property>
             <property name="receives-default">True</property>
             <signal name="clicked" handler="on_buttonSuspend_clicked" swapped="no"/>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left-attach">1</property>
-            <property name="top-attach">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton" id="buttonHibernate">
             <property name="label" translatable="yes">Hibernate</property>
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">True</property>
             <property name="receives-default">True</property>
             <signal name="clicked" handler="on_buttonHibernate_clicked" swapped="no"/>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton" id="buttonLock">
             <property name="label" translatable="yes">Lock</property>
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">True</property>
             <property name="receives-default">True</property>
             <signal name="clicked" handler="on_buttonLock_clicked" swapped="no"/>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left-attach">1</property>
-            <property name="top-attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton" id="buttonLogout">
             <property name="label" translatable="yes">Logout</property>
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">True</property>
             <property name="receives-default">True</property>
             <signal name="clicked" handler="on_buttonLogout_clicked" swapped="no"/>
+            <layout>
+              <property name="column">2</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left-attach">2</property>
-            <property name="top-attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton" id="buttonRestart">
             <property name="label" translatable="yes">Restart</property>
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">True</property>
             <property name="receives-default">True</property>
             <signal name="clicked" handler="on_buttonRestart_clicked" swapped="no"/>
+            <layout>
+              <property name="column">2</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left-attach">2</property>
-            <property name="top-attach">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton" id="buttonCustom">
             <property name="label" translatable="yes">Custom</property>
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">True</property>
             <property name="receives-default">True</property>
             <signal name="clicked" handler="on_buttonCustom_clicked" swapped="no"/>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">0</property>
-          </packing>
         </child>
       </object>
-    </child>
+    </property>
   </object>
   <object class="GtkImage" id="imagePreferences">
     <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">gtk-preferences</property>
-    <property name="icon_size">3</property>
+    <property name="focusable">False</property>
+    <property name="icon-name">preferences-system</property>
+    <property name="pixel-size">24</property>
   </object>
   <object class="GtkHeaderBar" id="headerTitleBar">
     <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="has-subtitle">False</property>
-    <property name="show-close-button">True</property>
+    <property name="focusable">False</property>
+    <property name="show-title-buttons">True</property>
     <child>
       <object class="GtkButton" id="buttonPreferences">
         <property name="visible">True</property>
-        <property name="can-focus">True</property>
+        <property name="focusable">True</property>
         <property name="focus-on-click">False</property>
         <property name="receives-default">True</property>
-        <property name="image">imagePreferences</property>
+        <property name="icon-name">preferences-system</property>
+        <property name="icon-name">preferences-system</property>
       </object>
     </child>
   </object>

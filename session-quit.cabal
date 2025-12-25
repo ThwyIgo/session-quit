@@ -20,7 +20,7 @@ name:               session-quit
 -- PVP summary:     +------- breaking API changes
 --                  | +----- non-breaking API additions
 --                  | | +--- code changes with no API change
-version:            0.0.1
+version:            0.0.2
 
 -- A short (one-line) description of the package.
 synopsis:           GUI to quit X sessions
@@ -69,14 +69,17 @@ executable session-quit
 
     -- LANGUAGE extensions used by modules in this package.
     other-extensions: OverloadedLabels, OverloadedStrings, LambdaCase
-                    , ImplicitParams
+                    , ImplicitParams, ViewPatterns, RecordWildCards
 
     -- Other library packages from which modules are imported.
     build-depends:    base
-                    , gi-gtk == 3.0.*
+                    , gi-gtk == 4.0.*
                     , gi-gdk
+                    , gi-gdkx11
+                    , X11
                     , haskell-gi-base
                     , gi-gio
+                    , gi-gobject
                     , containers
                     , directory
                     , filepath
