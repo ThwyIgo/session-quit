@@ -69,12 +69,12 @@ activate app = do
                                       , #editable      := False
                                       , #cursorVisible := False
                                       ]
-      win <- new Gtk.Window [ #application  := app
-                            , #title        := "Error"
-                            , #modal        := True
-                            , #resizable    := True
-                            , #child        := txtView
-                            , #defaultWidth := 500
+      win <- new Gtk.Window [ #application   := app
+                            , #title         := "Error"
+                            , #modal         := True
+                            , #resizable     := True
+                            , #child         := txtView
+                            , #defaultWidth  := 500
                             , #defaultHeight := 200
                             , On #closeRequest $ throwIO e >> return True
                             ]

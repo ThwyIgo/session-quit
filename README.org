@@ -4,14 +4,14 @@
 
 * Build
 - Install [[https://nixos.org/download.html][Nix]]
-- ~nix-build~
+- ~nix build~
 - The executable is at ./result/bin/session-quit
 
 * Develop
 - Install [[https://nixos.org/download.html][Nix]]
-- ~nix-shell~
+- ~nix develop~
 - Start tinkering!
 
-* Install
+* Run
 - Install [[https://nixos.org/download.html][Nix]]
-- ~nix-env -if default.nix~
+- ~nix run~
