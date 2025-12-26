@@ -123,7 +123,6 @@ registerSignals scope config = do
            Just s -> return s
            Nothing -> (Map.! script) <$> loadConfig "resources/defaultConfig.cfg"
         runProcess_ (shell cmd)
-        exitSuccess
 
   let handlers =
         [ ("on_buttonCustom_clicked",    runScript "Custom")
@@ -136,4 +135,4 @@ registerSignals scope config = do
         ]
 
   forM_ handlers $ \(name, action) ->
-    Gtk.builderCScopeAddCallbackSymbol scope name action
+    #addCallbackSymbol scope name (action >> exitSuccess)
